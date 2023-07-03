@@ -2,7 +2,7 @@
 
 JENKINS_HOME="/var/jenkins_home/"
 JENKINS_CLI_JAR="${JENKINS_HOME}/jenkins-cli.jar"
-JENKINS_AUTH_FILE="${JENKINS_HOME}/auth_api_ADMIN_shutdown.txt"
+JENKINS_AUTH_FILE="/usr/local/bin/auth_api_ADMIN_shutdown.txt"
 
 download_jenkins_jar() {
         echo "Checking if Jenkins CLI jar file exists."
