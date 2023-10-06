@@ -35,7 +35,7 @@ PID_DOWNLOAD=$!
 trap 'graceful_shutdown' SIGTERM
 
 # Boot up Jenkins
-exec /usr/bin/tini -- /usr/local/bin/jenkins.sh
+exec /usr/bin/tini -- /usr/local/bin/jenkins.sh --prefix="/jenkins"
 
 # Wait for the PID download to finish
 wait ${PID_DOWNLOAD}
