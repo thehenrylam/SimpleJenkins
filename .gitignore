@@ -1,2 +1,6 @@
 auth*txt
 */auth*txt
+
+scripts/jars/*
+!scripts/jars/INFO.txt
+
