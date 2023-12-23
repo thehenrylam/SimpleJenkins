@@ -8,7 +8,9 @@ def GetPrivateIpAddress( node_name ) {
 	}
 	def node_channel = node.computer.getChannel()
 	def ip_addresses = node_channel.call(new ListPossibleNames())
-	return ip_addresses[1]
+	// Get the last ip_address in the list 
+	// (Which usually indicates the final destination of the target node)
+	return ip_addresses.last()
 }
 
 def GetPortNumber( node_name ) {
@@ -38,12 +40,5 @@ for (int i = 0; i < list_of_node_names.size(); i++) {
 	port_number = GetPortNumber( list_of_node_names[i] )
 	println("${list_of_node_names[i]},${ip_address},${port_number}")
 }
-
-
-// println( list_of_node_names )
-
-// def node_name = args[0]
-// GetPrivateIpAddress( node_name )
-
 
 
