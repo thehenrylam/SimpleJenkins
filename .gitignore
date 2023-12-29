@@ -4,3 +4,7 @@ auth*txt
 scripts/jars/*
 !scripts/jars/INFO.txt
 
+scripts/python3/__pycache__/*
+
+*ignore*
+
