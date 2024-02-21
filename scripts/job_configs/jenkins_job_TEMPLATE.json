@@ -1,0 +1,6 @@
+{
+	"job":"JENKINS_JOB",
+	"parameters": [
+		{ "key":"Parameter Name", "value":"Parameter Value" }
+	]
+}
