@@ -6,5 +6,8 @@ scripts/jars/*
 
 scripts/python3/__pycache__/*
 
+logs/*
+!logs/placeholder.txt
+
 *ignore*
 
