@@ -2,10 +2,16 @@
 - name: "Start Jenkins App"
   become: yes
   shell: docker compose up --build -d
+  args:
+    chdir: "{{ playbook_dir }}/../../" 
 
 - name: Wait for Jenkins App to fully start up
-  shell: ./check_jenkins_read.py http://127.0.0.1:8080/jenkins/
+  shell: python3 ./check_jenkins_ready.py http://127.0.0.1:8080/jenkins/
+  args:
+    chdir: "{{ playbook_dir }}/../../"
 
 - name: "Stop Jenkins App"
   become: yes
   shell: docker compose down
+  args:
+    chdir: "{{ playbook_dir}}/../../"
