@@ -1,0 +1,9 @@
+- name: Remove Dockerfile
+  file: 
+    path: "../../Dockerfile" 
+    state: absent 
+
+- name: Remove docker-compose.yml
+  file: 
+    path: "../../docker-compose.yml" 
+    state: absent 

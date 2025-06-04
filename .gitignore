@@ -11,3 +11,9 @@ logs/*
 
 *ignore*
 
+# This is supposed to be templated by ansible. DO NOT STORE IN REPO
+docker-compose.yml
+Dockerfile
+jenkins_casc/*.yaml
+jenkins_casc/*.yml
+ansible/group_vars/jenkins_credentials.yml
