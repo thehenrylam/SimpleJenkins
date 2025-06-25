@@ -1,0 +1,24 @@
+services:
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: {{ jenkins.docker.image.name }}
+    container_name: {{ jenkins.docker.container.name }}
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - {{ jenkins.docker.volume.name }}:/var/jenkins_home
+      - ./jenkins_casc:/var/jenkins_home/casc_configs
+    environment:
+      # Tell Jenkins to run at https://<host>:8080/jenkins
+      - JENKINS_OPTS=--prefix=/jenkins
+      # Prevent the setup wizard from executing
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      # Point JCasC at your YAML
+      - CASC_JENKINS_CONFIG=/var/jenkins_home/casc_configs/jenkins.yaml
+
+volumes:
+  {{ jenkins.docker.volume.name }}:

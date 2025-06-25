@@ -1,0 +1,9 @@
+- name: Template Dockerfile
+  template:
+    src: "../../Dockerfile.j2"
+    dest: "../../Dockerfile"
+
+- name: Template docker-compose.yml 
+  template:
+    src: "../../docker-compose.yml.j2"
+    dest: "../../docker-compose.yml"

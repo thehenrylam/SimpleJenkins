@@ -1,0 +1,12 @@
+# Dockerfile
+FROM {{ jenkins.docker.image.basename }}
+
+# Run as root to install plugins
+USER root
+
+# Copy plugins list and install them
+COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
+RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins.txt
+
+# Switch back to the jenkins user
+USER jenkins

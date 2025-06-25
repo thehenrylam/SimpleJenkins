@@ -1,0 +1,299 @@
+jenkins:
+  authorizationStrategy:
+    roleBased:
+      roles:
+        global:
+        - entries:
+          - user: "admin"
+          name: "admin"
+          pattern: ".*"
+          permissions:
+          - "Overall/Administer"
+        - entries:
+          - user: "operator"
+          name: "op-agent"
+          pattern: ".*"
+          permissions:
+          - "Agent/Provision"
+          - "Agent/Create"
+          - "Overall/Read"
+          - "Agent/Configure"
+          - "Agent/Build"
+          - "Agent/Connect"
+          - "Agent/Delete"
+          - "Agent/Disconnect"
+        - entries:
+          - user: "operator"
+          name: "op-basic"
+          pattern: ".*"
+          permissions:
+          - "Metrics/ThreadDump"
+          - "Run/Delete"
+          - "Overall/Read"
+          - "SCM/Tag"
+          - "Run/Update"
+          - "View/Create"
+          - "View/Delete"
+          - "Metrics/View"
+          - "View/Read"
+          - "Metrics/HealthCheck"
+          - "View/Configure"
+          - "Run/Replay"
+        - entries:
+          - user: "operator"
+          name: "op-credentials"
+          pattern: ".*"
+          permissions:
+          - "Overall/Read"
+          - "Credentials/Delete"
+          - "Credentials/ManageDomains"
+          - "Credentials/Create"
+          - "Credentials/View"
+          - "Credentials/Update"
+        - entries:
+          - user: "operator"
+          name: "op-job"
+          pattern: ".*"
+          permissions:
+          - "Job/Cancel"
+          - "Overall/Read"
+          - "Job/Move"
+          - "Job/Build"
+          - "Job/Delete"
+          - "Job/Create"
+          - "Job/Discover"
+          - "Job/Read"
+          - "Job/Configure"
+          - "Job/Workspace"
+        - entries:
+          - user: "auto_minimal"
+          - user: "generic"
+          - user: "operator"
+          name: "readonly"
+          pattern: ".*"
+          permissions:
+          - "Overall/Read"
+          - "Job/Read"
+          - "View/Read"
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: false
+  disableRememberMe: false
+  disabledAdministrativeMonitors:
+  - "hudson.util.DoubleLaunchChecker"
+  - "hudson.diagnosis.ReverseProxySetupMonitor"
+  labelAtoms:
+  - name: "built-in"
+  - name: "orchestrator"
+  labelString: "orchestrator"
+  markupFormatter: "plainText"
+  mode: NORMAL
+  myViewsTabBar: "standard"
+  nodeMonitors:
+  - "architecture"
+  - "clock"
+  - diskSpace:
+      freeSpaceThreshold: "1GiB"
+      freeSpaceWarningThreshold: "2GiB"
+  - "swapSpace"
+  - tmpSpace:
+      freeSpaceThreshold: "1GiB"
+      freeSpaceWarningThreshold: "2GiB"
+  - "responseTime"
+  numExecutors: 1
+  primaryView:
+    all:
+      name: "all"
+  projectNamingStrategy:
+    roleBased:
+      forceExistingJobs: false
+  quietPeriod: 5
+  remotingSecurity:
+    enabled: true
+  scmCheckoutRetryCount: 0
+  securityRealm:
+    local:
+      allowsSignup: false
+      enableCaptcha: false
+      users:
+      - id: "admin"
+        name: "admin"
+{% if set_passwords %}
+        password: "{{ secrets.admin.password }}"
+{% endif %}
+        properties:
+        - theme:
+            theme: "noOp"
+        - mailer:
+            emailAddress: "address not configured yet <nobody@nowhere>"
+        - preferredProvider:
+            providerId: "default"
+        - "apiToken"
+        - "consoleUrlProvider"
+        - "myView"
+        - "timezone"
+        - "experimentalFlags"
+      - id: "auto_minimal"
+        name: "auto_minimal"
+{% if set_passwords %}
+        password: "{{ secrets.auto_minimal.password }}"
+{% endif %}
+        properties:
+        - theme:
+            theme: "noOp"
+        - mailer:
+            emailAddress: "address not configured yet <nobody@nowhere>"
+        - preferredProvider:
+            providerId: "default"
+        - "apiToken"
+        - "consoleUrlProvider"
+        - "myView"
+        - "timezone"
+        - "experimentalFlags"
+      - id: "generic"
+        name: "generic"
+{% if set_passwords %}
+        password: "{{ secrets.generic.password }}"
+{% endif %}
+        properties:
+        - theme:
+            theme: "noOp"
+        - mailer:
+            emailAddress: "address not configured yet <nobody@nowhere>"
+        - preferredProvider:
+            providerId: "default"
+        - "apiToken"
+        - "consoleUrlProvider"
+        - "myView"
+        - "timezone"
+        - "experimentalFlags"
+      - id: "operator"
+        name: "operator"
+{% if set_passwords %}
+        password: "{{ secrets.operator.password }}"
+{% endif %}
+        properties:
+        - theme:
+            theme: "noOp"
+        - mailer:
+            emailAddress: "address not configured yet <nobody@nowhere>"
+        - preferredProvider:
+            providerId: "default"
+        - "apiToken"
+        - "consoleUrlProvider"
+        - "myView"
+        - "timezone"
+        - "experimentalFlags"
+  slaveAgentPort: 50000
+  updateCenter:
+    sites:
+    - id: "default"
+      url: "https://updates.jenkins.io/update-center.json"
+  views:
+  - all:
+      name: "all"
+  viewsTabBar: "standard"
+globalCredentialsConfiguration:
+  configuration:
+    providerFilter: "none"
+    typeFilter: "none"
+appearance:
+  pipelineGraphView:
+    showGraphOnBuildPage: false
+    showGraphOnJobPage: false
+  prism:
+    theme: PRISM
+  themeManager:
+    disableUserThemes: false
+    theme: "noOp"
+security:
+  apiToken:
+    creationOfLegacyTokenEnabled: false
+    tokenGenerationOnCreationEnabled: false
+    usageStatisticsEnabled: true
+  cps:
+    hideSandbox: false
+  gitHooks:
+    allowedOnAgents: false
+    allowedOnController: false
+  gitHostKeyVerificationConfiguration:
+    sshHostKeyVerificationStrategy: "knownHostsFileVerificationStrategy"
+  scriptApproval:
+    forceSandbox: false
+unclassified:
+  buildDiscarders:
+    configuredBuildDiscarders:
+    - "jobBuildDiscarder"
+  buildStepOperation:
+    enabled: false
+  email-ext:
+    adminRequiredForTemplateTesting: false
+    allowUnregisteredEnabled: false
+    charset: "UTF-8"
+    debugMode: false
+    defaultBody: |-
+      $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
+
+      Check console output at $BUILD_URL to view the results.
+    defaultContentType: "text/plain"
+    defaultSubject: "$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!"
+    defaultTriggerIds:
+    - "hudson.plugins.emailext.plugins.trigger.FailureTrigger"
+    maxAttachmentSize: -1
+    maxAttachmentSizeMb: -1
+    precedenceBulk: false
+    throttlingEnabled: false
+    watchingEnabled: false
+  enrichedSummaryConfig:
+    enrichedSummaryEnabled: false
+    httpClientDelayBetweenRetriesInSeconds: 1
+    httpClientMaxRetries: 3
+    httpClientTimeoutInSeconds: 1
+  fingerprints:
+    fingerprintCleanupDisabled: false
+    storage: "file"
+  gitHubConfiguration:
+    apiRateLimitChecker: ThrottleForNormalize
+  globalTimeOutConfiguration:
+    operations:
+    - "abortOperation"
+    overwriteable: false
+  injectionConfig:
+    allowUntrusted: false
+    checkForBuildAgentErrors: false
+    enabled: false
+    enforceUrl: false
+    gradleCaptureTaskInputFiles: true
+    injectCcudExtension: false
+    injectMavenExtension: false
+    mavenCaptureGoalInputFiles: true
+  junitTestResultStorage:
+    storage: "file"
+  mailer:
+    charset: "UTF-8"
+    useSsl: false
+    useTls: false
+  pollSCM:
+    pollingThreadCount: 10
+  resourceRoot:
+    url: "http://localhost:8080/jenkins/"
+  scmGit:
+    addGitTagAction: false
+    allowSecondFetch: false
+    createAccountBasedOnEmail: false
+    disableGitToolChooser: false
+    hideCredentials: false
+    showEntireCommitSummaryInChanges: false
+    useExistingAccountWithSameEmail: false
+  timestamper:
+    allPipelines: false
+    elapsedTimeFormat: "'<b>'HH:mm:ss.S'</b> '"
+    systemTimeFormat: "'<b>'HH:mm:ss'</b> '"
+tool:
+  git:
+    installations:
+    - home: "git"
+      name: "Default"
+  mavenGlobalConfig:
+    globalSettingsProvider: "standard"
+    settingsProvider: "standard"
