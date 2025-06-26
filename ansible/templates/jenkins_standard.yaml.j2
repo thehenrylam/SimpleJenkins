@@ -297,3 +297,8 @@ tool:
   mavenGlobalConfig:
     globalSettingsProvider: "standard"
     settingsProvider: "standard"
+{% if dsl_jobs is defined and dsl_jobs is not none and dsl_jobs|length %}jobs:
+{% for item in dsl_jobs %}
+  - file: "/var/jenkins_home/casc_configs/{{ item }}"
+{% endfor %}
+{% endif %} 

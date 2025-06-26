@@ -1,0 +1,32 @@
+# DEFAULTS
+# - templates_source
+# - templates_destination
+
+# Wipe out the contents of the <appdir>/jenkins_casc/dsl_jobs/ directory
+- name: Delete content & directory
+  ansible.builtin.file:
+    state: absent
+    path: "{{ templates_destination }}"
+
+# Template files within the templates_source filepath 
+# and put it all in templates_destination filepath
+- name: Display templates destination and source
+  debug:
+    msg: 
+    - "src: {{ templates_source }}"
+    - "dst: {{ templates_destination }}"
+
+- name: Get directory structure of the template dsl_jobs directory
+  ansible.builtin.file:
+    path: '{{ templates_destination }}/{{ item.path }}'
+    state: directory
+  with_community.general.filetree: '{{ templates_source }}'
+  when: item.state == 'directory'
+
+- name: Template files from source directory and put them in destination directoy
+  ansible.builtin.template:
+    src: '{{ item.src }}'
+    dest: '{{ templates_destination }}/{{ item.path }}'
+  with_community.general.filetree: '{{ templates_source }}'
+  when: item.state == 'file'
+

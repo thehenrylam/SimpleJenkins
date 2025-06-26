@@ -16,4 +16,7 @@ docker-compose.yml
 Dockerfile
 jenkins_casc/*.yaml
 jenkins_casc/*.yml
+jenkins_casc/dsl_jobs/*
+!jenkins_casc/dsl_jobs/stub
 ansible/group_vars/jenkins_credentials.yml
+ansible/group_vars/jobs.yml
