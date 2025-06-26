@@ -1,7 +1,7 @@
 jenkins:
   docker:
     image:
-      basename: "jenkins/jenkins:2.504.2-lts-jdk21"
+      basename: "jenkins/jenkins:2.504.3-lts-jdk21"
       name: "simple-jenkins:simple-jenkins"
     container:
       name: "simple-jenkins-container"

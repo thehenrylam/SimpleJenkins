@@ -20,7 +20,7 @@
     # Declare the variables
     - name: Determine First Time Setup Value
       set_fact:
-        force_setup: "{{ force_setup | default(true) }}"
+        force_setup: "{{ force_setup | default(false) }}"
         first_time_setup: "{{ dockerfile_status.stat.exists == false }}"
     # Display the variables (for debugging and visibility)
     - name: Display First Time Setup Value
@@ -34,6 +34,18 @@
     - role: "deploy-config_fundamentals"
       when: first_time_setup or force_setup
 
+# Deploy *.groovy DSL jobs into ./jenkins_casc/dsl_jobs/*
+- name: Deploy jobs via groovy files using JenkinsDSL (STANDARD)
+  hosts: localhost
+  roles: 
+    - role: "deploy-jobs_standard"
+
+# Save DSL jobs into ansible/group_vars/jobs.yml
+- name: Save the current job configuration into ansible/group_vars/jobs.yml
+  hosts: localhost
+  roles:
+    - role: "save-jobs"
+
 # Template the Jenkins CASC file WITH the password
 # 
 # What it does:
@@ -44,15 +56,17 @@
 - name: Deploy Jenkins CASC (with Password)
   hosts: localhost
   gather_facts: false
-  #vars_files: "../group_vars/jenkins_credentials.yml"
   vars:
-    set_passwords: true 
+    set_passwords: true
+  vars_files: 
+    - "{{ playbook_dir }}/../group_vars/jobs.yml" 
   tasks:
     # Load in the credentials file (Inform the user if it's missing)
     - block:
       - name: “Load Jenkins credentials (will error if missing)”
         include_vars:
           file: "../group_vars/jenkins_credentials.yml"
+      when: first_time_setup or force_setup
       rescue:
         - name: "Tell the user that they need to create the credentials"
           fail:
@@ -98,11 +112,14 @@
   hosts: localhost
   roles:
     - role: "apply-jenkins-casc" 
+      when: first_time_setup or force_setup
 
 # Template the Jenkins CASC file WITHOUT the password
 - name: Deploy Jenkins CASC (without Password)
   hosts: localhost
   vars:
     set_passwords: false
+  vars_files:
+    - "{{ playbook_dir }}/../group_vars/jobs.yml"
   roles: 
     - role: "deploy-config_standard"

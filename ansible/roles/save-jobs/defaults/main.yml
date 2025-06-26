@@ -1,0 +1,2 @@
+templates_destination: "{{ playbook_dir }}/../../jenkins_casc/dsl_jobs/"
+
