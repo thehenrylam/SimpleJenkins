@@ -1,0 +1,44 @@
+# DEFAULTS
+# - templates_destination
+
+# 1) Make sure group_vars exists (adjust path if your playbook_dir is elsewhere)
+- name: Ensure group_vars directory exists
+  ansible.builtin.file:
+    path: "{{ playbook_dir }}/../group_vars"
+    state: directory
+    mode: '0755'
+
+# 2) Find all Groovy DSL job files in the jenkins_casc/dsl_jobs dir
+- name: Find DSL Groovy job files
+  ansible.builtin.find:
+    paths: "{{ templates_destination }}"
+    patterns: "*.groovy"
+    recurse: yes
+    file_type: file
+  register: dsl_job_files
+
+# 3) Turn those absolute paths into “dsl_jobs/...”
+- name: Build list of relative DSL job paths
+  # Explanation: Create the variable process data from dsl_job_files and put it into job_relative_paths
+  #   sort(attribute='path')   <- Step #1: Sort the data from dsl_job_files in alphabetical order
+  #   map(attribute='path')    <- Step #2: Convert the data into strings
+  #   map('regex_replace',...) <- Step #3: Drop the leading dirs up until dsl_jobs/...
+  ansible.builtin.set_fact:
+    job_relative_paths: >-
+      {{ dsl_job_files.files
+         | sort(attribute='path') 
+         | map(attribute='path') 
+         | map('regex_replace','^.*/dsl_jobs/','dsl_jobs/') 
+         | list }}
+
+# 4) Write out ansible/group_vars/jobs.yml
+- name: Write DSL jobs list to ansible/group_vars/jobs.yml
+  ansible.builtin.copy:
+    dest: "{{ playbook_dir }}/../group_vars/jobs.yml"
+    mode: '0644'
+    content: |
+      dsl_jobs:
+      {% for job in job_relative_paths %}
+        - {{ job }}
+      {% endfor %}
+
