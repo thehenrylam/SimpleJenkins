@@ -30,3 +30,5 @@
   with_community.general.filetree: '{{ templates_source }}'
   when: item.state == 'file'
 
+- name: Make sure that stub file is present (to ensure a clean git status) 
+  command: touch {{ templates_destination }}/stub

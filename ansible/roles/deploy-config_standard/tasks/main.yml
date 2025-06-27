@@ -1,14 +1,11 @@
 - name: Make sure that set_passwords are setup properly
   set_fact:
     local_set_passwords: "{{ set_passwords | default(false) }}"
-
-# - name: Display set_passwords variable
-#   debug:
-#     msg: "set_passwords: {{ local_set_passwords }}"
+    jenkins_casc_dirname: "jenkins_casc_standard"
 
 - name: Apply templating onto the jenkins CasC file
   template: 
-    src: "../templates/jenkins_standard.yaml.j2"
-    dest: "../../jenkins_casc/jenkins.yaml"
+    src: "{{ templates_dir }}/{{ jenkins_casc_dirname }}/jenkins.yaml.j2"
+    dest: "{{ repository_dir }}/jenkins_casc/jenkins.yaml"
   vars:
     set_passwords: "{{ local_set_passwords }}" 

@@ -1,121 +1,109 @@
 ---
+- name: Determine static variables
+  hosts: localhost
+  tasks:
+    - set_fact:
+        deployment_marker_filepath: "{{ playbook_dir }}/../../logs/jenkins_setup.txt"
+    - debug:
+        msg:
+          - "deployment_marker_filepath: {{ deployment_marker_filepath }}"
+
 # Declares initial variables
 # 
 # What variables it creates:
 #   1. first_time_setup: 
-#     The variable determines if it only needs to template the jenkins CASC file w/o password, 
-#     or if it needs to template using a password, apply the change by starting jenkins, and then retemplating w/o the password. 
-#   2. force_setup:
-#     The variable determines if we should just ignore first_time_setup and go through the entire setup process.
-#     This is a straightforward way to flush everything and redo the whole playbook
+#     The variable determines the full setup process is needed.
+#     The extra steps from the full setup process is the following:
+#       - ...
+#   2. force_deployment: (User uses the "force" variable to control its functionality)
+#     The variable determines if we force ansible to go through the entire setup process.
 #
 - name: Check for first time setup
   hosts: localhost
   tasks:
-    # Condition: If a Dockerfile exists, then this isn't a first time setup
-    - name: Determine if Dockerfile is created 
+    # Condition: If deployment_marker_filepath exists, then this IS NOT a first time setup
+    - name: Determine if deployment_marker_filepath is created
       stat:
-        path: "../../Dockerfile"
-      register: dockerfile_status
-    # Declare the variables
-    - name: Determine First Time Setup Value
-      set_fact:
-        force_setup: "{{ force_setup | default(false) }}"
-        first_time_setup: "{{ dockerfile_status.stat.exists == false }}"
+        path: "{{ deployment_marker_filepath }}"
+      register: deployment_market_file
+    # Declare variables
+    - name: Determine first time setup values
+      set_fact: 
+        force_deployment: "{{ force | default(false) }}"
+        first_time_setup: "{{ deployment_market_file.stat.exists == false }}"
     # Display the variables (for debugging and visibility)
-    - name: Display First Time Setup Value
+    - name: Display first time setup values
       debug:
-        msg: "first_time_setup: {{ first_time_setup }} (Force: {{ force_setup }})"
+        msg: 
+          - "first_time_setup: {{ first_time_setup }}"
+          - "force: {{ (force_deployment|bool) }}"
 
-# Template the Docker files (e.g. Dockerfile, docker-compose.yml, etc)
-- name: Deploy Docker Files 
+# IF first_time_setup OR force_deployment: Make sure that the file of deployment marker is REMOVED
+- name: Make sure that deployment_marker_filepath is removed
   hosts: localhost
+  tasks:
+    - file: 
+        path: "{{ deployment_marker_filepath }}"
+        state: absent
+      when: first_time_setup or (force_deployment|bool)
+
+# Template the Docker files (e.g. Dockerfile, docker-compose.yml)
+- name: Deploy Docker files
+  hosts: localhost
+  vars_files:
+    - "{{ playbook_dir }}//../group_vars/extra_plugins_standard.yml"
   roles:
     - role: "deploy-config_fundamentals"
-      when: first_time_setup or force_setup
 
 # Deploy *.groovy DSL jobs into ./jenkins_casc/dsl_jobs/*
 - name: Deploy jobs via groovy files using JenkinsDSL (STANDARD)
   hosts: localhost
-  roles: 
+  roles:
     - role: "deploy-jobs_standard"
 
 # Save DSL jobs into ansible/group_vars/jobs.yml
-- name: Save the current job configuration into ansible/group_vars/jobs.yml
+- name: Save the current job configuration into ./ansible/group_vars/jobs.yml
   hosts: localhost
   roles:
     - role: "save-jobs"
 
-# Template the Jenkins CASC file WITH the password
-# 
-# What it does:
-#   1. Try to template Jenkins CASC
-#   2. (ON FAILURE) Delete Docker Files and Jenkins CASC 
-#     Why: It's to make it easier to re-execute by gauranteeing that first_time_setup will be true (i.e. No Dockerfile found)
-#
-- name: Deploy Jenkins CASC (with Password)
+# IF first_time_setup OR force_deployment: Template the Jenkins CasC file WITH the password
+- name: Deploy Jenkins CasC (with Password)
   hosts: localhost
-  gather_facts: false
-  vars:
+  vars: 
     set_passwords: true
-  vars_files: 
-    - "{{ playbook_dir }}/../group_vars/jobs.yml" 
+  vars_files:
+    - "{{ playbook_dir }}//../group_vars/jobs.yml"
   tasks:
-    # Load in the credentials file (Inform the user if it's missing)
     - block:
-      - name: “Load Jenkins credentials (will error if missing)”
+      # BLOCK:
+      #   1. Load Jenkins credentials (jenkins_credentials.yml)
+      #   2. Deploy the configuration (with Password)
+      #   3. Apply the Jenkins CasC file
+      - name: Load Jenkins credentials file (will error if missing)
         include_vars:
-          file: "../group_vars/jenkins_credentials.yml"
-      when: first_time_setup or force_setup
+          file: "{{ playbook_dir }}/../group_vars/jenkins_credentials.yml"      
+      - name: "Include the deploy-config_standard (with Password)"
+        include_role:
+          name: "deploy-config_standard"
+      - name: Apply Jenkins CasC 
+        include_role:
+          name: "apply-jenkins-casc"
+      when: first_time_setup or (force_deployment|bool)
+      # RESCUE:
+      #   1. Remove Jenkins CasC file (./jenkins_casc/jenkins.yaml)
+      #   2. Raise the failure status
       rescue:
-        - name: "Tell the user that they need to create the credentials"
-          fail:
-            msg: "deploy-config_standard failed; Please make sure that ./ansible/group_vars/jenkins_credentials.yml is created!"
-
-    # Wrap the role (deploy-config_standard) with the "rescue" node (the steps to execute if a node fails)
-    - block:
-      # Execute the deploy-config_standard role
-        - name: "Include the deploy-config_standard role"
-          include_role:
-            name: "deploy-config_standard"
-      when: first_time_setup or force_setup
-
-      # Perform the following steps if an error occurs (likely due to variable not found)
-      rescue:
-        # Remove Docker files
-        - name: "Rollback Docker files"
-          include_role:
-            name: "remove-config_fundamentals"
-        # Remove Jenkins CASC files
-        - name: "Remove Jenkins CASC"
-          file: 
-            path: "../../jenkins_casc/jenkins.yaml"
+        - name: "Remove Jenkins CasC (to mitigate password exposure)"
+          file:
+            path: "{{ playbook_dir }}/../../jenkins_casc/jenkins.yaml"
             state: absent
-        # Send out a message to describe the failure
-        - name: "Raise failure status"
-          fail:
-            msg: "deploy-config_standard role failed; Docker files rolled back"
+        - name: "Raise the failure status"
+          fail: 
+            msg: "Deploy Jenkins CasC (with Password) failed!"
 
-# Apply the Jenkins CASC 
-# 
-# What it does:
-#   1. Start up Jenkins
-#   2. Wait for Jenkins to fully get set up (i.e. Reach its LOGIN screen)
-#   3. Stop Jenkins
-# 
-# Why it does this:
-#   This is to make sure Jenkins reads the Jenkins CASC file and stores the passwords in its database
-#   When Jenkins has those passwords stored, we can reuse the same CASC (but w/o passwords)
-#   and minimize the amount of sensitive information that's exposed within the host when it comes time to use it
-# 
-- name: Apply Jenkins CASC 
-  hosts: localhost
-  roles:
-    - role: "apply-jenkins-casc" 
-      when: first_time_setup or force_setup
-
-# Template the Jenkins CASC file WITHOUT the password
-- name: Deploy Jenkins CASC (without Password)
+# Template the Jenkins CasC file (without Password)
+- name: Deploy Jenkins CasC (without Password)
   hosts: localhost
   vars:
     set_passwords: false
@@ -123,3 +111,10 @@
     - "{{ playbook_dir }}/../group_vars/jobs.yml"
   roles: 
     - role: "deploy-config_standard"
+
+# Initialize or update timestamp of the deployment marker
+- name: Create or update timestamp of the deployment marker
+  hosts: localhost
+  tasks:
+    - command: touch {{ deployment_marker_filepath }}
+
