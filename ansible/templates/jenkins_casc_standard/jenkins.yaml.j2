@@ -86,6 +86,12 @@ jenkins:
   - name: "built-in"
   - name: "orchestrator"
   labelString: "orchestrator"
+  log:
+    recorders:
+    - loggers:
+      - level: "ALL"
+        name: "jenkins.security.SecurityListener"
+      name: "SecurityListener"
   markupFormatter: "plainText"
   mode: NORMAL
   myViewsTabBar: "standard"
