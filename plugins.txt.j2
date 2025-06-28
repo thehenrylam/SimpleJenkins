@@ -91,4 +91,8 @@ workflow-scm-step:437.v05a_f66b_e5ef8
 workflow-step-api:700.v6e45cb_a_5a_a_21
 workflow-support:968.v8f17397e87b_8
 ws-cleanup:0.48
-
+{% if extra_plugins is defined and extra_plugins is not none and extra_plugins|length %}
+{% for item in extra_plugins %}
+{{ item }}
+{% endfor %}
+{% endif %}

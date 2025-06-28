@@ -7,3 +7,8 @@
   template:
     src: "../../docker-compose.yml.j2"
     dest: "../../docker-compose.yml"
+
+- name: Template plugins.txt
+  template:
+    src: "../../plugins.txt.j2"
+    dest: "../../plugins.txt"

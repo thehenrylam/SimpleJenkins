@@ -7,13 +7,14 @@ scripts/jars/*
 scripts/python3/__pycache__/*
 
 logs/*
-!logs/placeholder.txt
+!logs/stub
 
 *ignore*
 
 # This is supposed to be templated by ansible. DO NOT STORE IN REPO
 docker-compose.yml
 Dockerfile
+plugins.txt
 jenkins_casc/*.yaml
 jenkins_casc/*.yml
 jenkins_casc/dsl_jobs/*

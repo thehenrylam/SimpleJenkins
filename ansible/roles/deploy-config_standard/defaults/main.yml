@@ -1,0 +1,2 @@
+templates_dir: "{{ playbook_dir }}/../templates/"
+repository_dir: "{{ playbook_dir }}/../../"
