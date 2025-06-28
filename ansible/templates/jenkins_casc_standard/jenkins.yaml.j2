@@ -124,14 +124,14 @@ jenkins:
       users:
       - id: "admin"
         name: "admin"
-{% if set_passwords %}
+        {%- if set_passwords +%}
         password: "{{ secrets.admin.password }}"
-{% endif %}
+        {%- endif +%}
         properties:
         - theme:
             theme: "noOp"
         - mailer:
-            emailAddress: "address not configured yet <nobody@nowhere>"
+            emailAddress: "{{ jenkins.casc.users.admin.email_address | default('address not configured yet <nobody@nowhere>') }}"
         - preferredProvider:
             providerId: "default"
         - "apiToken"
@@ -141,14 +141,14 @@ jenkins:
         - "experimentalFlags"
       - id: "auto_minimal"
         name: "auto_minimal"
-{% if set_passwords %}
+        {%- if set_passwords +%}
         password: "{{ secrets.auto_minimal.password }}"
-{% endif %}
+        {%- endif +%}
         properties:
         - theme:
             theme: "noOp"
         - mailer:
-            emailAddress: "address not configured yet <nobody@nowhere>"
+            emailAddress: "{{ jenkins.casc.users.auto_minimal.email_address | default('address not configured yet <nobody@nowhere>') }}"
         - preferredProvider:
             providerId: "default"
         - "apiToken"
@@ -158,14 +158,14 @@ jenkins:
         - "experimentalFlags"
       - id: "generic"
         name: "generic"
-{% if set_passwords %}
+        {%- if set_passwords +%}
         password: "{{ secrets.generic.password }}"
-{% endif %}
+        {%- endif +%}
         properties:
         - theme:
             theme: "noOp"
         - mailer:
-            emailAddress: "address not configured yet <nobody@nowhere>"
+            emailAddress: "{{ jenkins.casc.users.generic.email_address | default('address not configured yet <nobody@nowhere>') }}"
         - preferredProvider:
             providerId: "default"
         - "apiToken"
@@ -175,14 +175,14 @@ jenkins:
         - "experimentalFlags"
       - id: "operator"
         name: "operator"
-{% if set_passwords %}
+        {%- if set_passwords +%}
         password: "{{ secrets.operator.password }}"
-{% endif %}
+        {%- endif +%}
         properties:
         - theme:
             theme: "noOp"
         - mailer:
-            emailAddress: "address not configured yet <nobody@nowhere>"
+            emailAddress: "{{ jenkins.casc.users.operator.email_address | default('address not configured yet <nobody@nowhere>') }}"
         - preferredProvider:
             providerId: "default"
         - "apiToken"
@@ -260,6 +260,10 @@ unclassified:
     storage: "file"
   gitHubConfiguration:
     apiRateLimitChecker: ThrottleForNormalize
+  {%- if jenkins.casc.jenkins_url is defined and jenkins.casc.jenkins_url is not none +%}
+  gitHubPluginConfig:
+    hookUrl: "{{ jenkins.casc.jenkins_url }}/github-webhook/"
+  {%- endif +%}
   globalTimeOutConfiguration:
     operations:
     - "abortOperation"
@@ -275,6 +279,11 @@ unclassified:
     mavenCaptureGoalInputFiles: true
   junitTestResultStorage:
     storage: "file"
+  {%- if jenkins.casc.jenkins_url is defined and jenkins.casc.jenkins_url is not none +%}
+  location:
+    adminAddress: "{{ jenkins.casc.users.admin.email_address | default('address not configured yet <nobody@nowhere>') }}"
+    url: "{{ jenkins.casc.jenkins_url }}"
+  {%- endif +%}
   mailer:
     charset: "UTF-8"
     useSsl: false

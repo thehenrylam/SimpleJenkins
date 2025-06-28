@@ -7,3 +7,14 @@ jenkins:
       name: "simple-jenkins-container"
     volume:
       name: "simple-jenkins-volume"
+  casc:
+    jenkins_url: "https://127.0.0.1/jenkins/"
+    users:
+      admin:
+        email_address: "address not configured yet <nobody@nowhere>"
+      generic:
+        email_address: "address not configured yet <nobody@nowhere>"
+      operator:
+        email_address: "address not configured yet <nobody@nowhere>"
+      auto_minimal:
+        email_address: "address not configured yet <nobody@nowhere>"
